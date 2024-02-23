@@ -11,7 +11,7 @@ from langchain_community.vectorstores import Qdrant
 from qdrant_client import QdrantClient, models
 from langchain_core.documents import Document
 import random
-
+from customllm import CustomLLM
 import json
 from pathlib import Path
 from pprint import pprint
@@ -19,7 +19,7 @@ from threading import Thread
 import threading
 
 model = Ollama(model="dolphin-mixtral")
-
+custom_model=CustomLLM()
 ollama_emb = OllamaEmbeddings(
     model="nomic-embed-text",
 )
@@ -55,7 +55,7 @@ def createChain():
     chain = (
         {"question": RunnablePassthrough(),"context": RunnablePassthrough()}
         | prompt
-        | model
+        | custom_model
         | output_parser
     )
 
