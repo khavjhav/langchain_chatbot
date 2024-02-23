@@ -18,8 +18,9 @@ from pprint import pprint
 from threading import Thread
 import threading
 
-model = Ollama(model="dolphin-mixtral")
-custom_model=CustomLLM()
+# model = Ollama(model="dolphin-mixtral")
+model= Ollama(model="tinydolphin")
+# custom_model=CustomLLM()
 ollama_emb = OllamaEmbeddings(
     model="nomic-embed-text",
 )
@@ -55,7 +56,7 @@ def createChain():
     chain = (
         {"question": RunnablePassthrough(),"context": RunnablePassthrough()}
         | prompt
-        | custom_model
+        | model
         | output_parser
     )
 
