@@ -2,11 +2,15 @@ from typing import Any, List, Mapping, Optional
 import requests
 from langchain_core.callbacks.manager import CallbackManagerForLLMRun
 from langchain_core.language_models.llms import LLM
+from dotenv import load_dotenv
 import time
+import os
+
+load_dotenv()
 url="https://api.replicate.com/v1/models/mistralai/mixtral-8x7b-instruct-v0.1/predictions"
 headers = {
   'Content-Type': 'application/json',
-  'Authorization': 'Token r8_0M9resYB8007tOQLbiPqqEdOCbZZDZs34Bslo',
+  'Authorization': 'Token '+os.getenv("REPLICATE_TOKEN"),
 
 }
 class CustomLLM(LLM):
