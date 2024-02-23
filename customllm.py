@@ -8,6 +8,7 @@ import os
 
 load_dotenv()
 url="https://api.replicate.com/v1/models/mistralai/mixtral-8x7b-instruct-v0.1/predictions"
+# url="https://api.replicate.com/v1/predictions"
 headers = {
   'Content-Type': 'application/json',
   'Authorization': 'Token '+os.getenv("REPLICATE_TOKEN"),
@@ -28,6 +29,7 @@ class CustomLLM(LLM):
         **kwargs: Any,
     ) -> str:
         body = {
+
                     "input": {
                     "top_k": 50,
                     "top_p": 0.9,
