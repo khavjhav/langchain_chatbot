@@ -43,8 +43,12 @@ class CustomLLM(LLM):
             raise ValueError("stop kwargs are not permitted.")\
 
         first_chain=requests.post(url, json=body, headers=headers)
-        time.sleep(20)
-        second_chain=requests.get(first_chain.json()["urls"]["get"],headers=headers)
+        second_chain={}
+        while True:
+            second_chain=requests.get(first_chain.json()["urls"]["get"],headers=headers)
+            if second_chain.json()["status"]=="succeeded":
+                break
+            time.sleep(1)
         output=""
         for word in second_chain.json()["output"]:
             output=output+word
