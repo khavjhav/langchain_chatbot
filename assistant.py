@@ -19,8 +19,8 @@ from threading import Thread
 import threading
 
 # model = Ollama(model="dolphin-mixtral")
-model= Ollama(model="tinydolphin")
-# custom_model=CustomLLM()
+# model= Ollama(model="tinydolphin")
+model=CustomLLM()
 ollama_emb = OllamaEmbeddings(
     model="nomic-embed-text",
 )
