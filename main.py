@@ -3,7 +3,7 @@ import asyncio
 from fastapi import FastAPI
 from assistant import generator,embedJson,getContext,embedJson_without_thread
 from pydantic import BaseModel
-
+import uvicorn
 
 app=FastAPI()
 
@@ -25,3 +25,6 @@ async def hello_world():
 async def hello_world():
     return embedJson_without_thread()
     # return {"message": "Hello"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8001)

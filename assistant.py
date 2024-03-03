@@ -18,7 +18,9 @@ from pprint import pprint
 from threading import Thread
 import threading
 import getpass
+from dotenv import load_dotenv
 import os
+load_dotenv()
 
 if "GOOGLE_API_KEY" not in os.environ:
     os.environ["GOOGLE_API_KEY"] = getpass.getpass("Provide your Google API Key")
@@ -47,7 +49,7 @@ Answer the question based solely on the provided context. All necessary informat
 [INST]
 As a customer support assistant for an agency facilitating academic pursuits abroad, you'll be presented with a list of documents, each detailing a relevant postgraduate program retrieved from our database through similarity search.
 Your task is to respond to inquiries as a helpful assistant. Do not disclose the method of obtaining the context. Assume a human-like interaction and familiarity with the context provided.
-Remember, the system provides the context, not the customer or questionnaire.
+Remember, the system provides the context, not the customer or questionnaire. Also ask the customer what else they need after answering their question.
 DO NOT MENTION THE WORDS 'CONTEXT' OR 'DOCUMENTs' IN YOUR ANSWER.
 [/INST]
 [INST]
@@ -72,7 +74,7 @@ Your Answer as a Human Customer Service:
 # print(chain.invoke({"topic": "ice cream", "name": "Bob"}))
 
 def generator(question):
-
+    # raise Exception("Error")
     chain = createChain()
     context=getContext(question)
     print(chain["prompt"].format_messages(context= context, question= question))
@@ -81,11 +83,13 @@ def generator(question):
     #     yield chunk
     chunk=chain["chain"].invoke({"question": question,"context":context})
     print(chunk)
+    #throw error in this line
+
     return chunk
 
 def process_item(item, index):
     docs = Document(page_content=str(item))
-    db = Qdrant.from_documents([docs], ollama_emb, url="http://localhost:6333", collection_name="my_documents")
+    db = Qdrant.from_documents([docs], ollama_emb, url=os.getenv("QDRANT_CLIENT"),api_key=os.getenv("QDRANT_API_KEY"), collection_name="my_documents")
     # Corrected way to get the current thread's name
     print(f"Processed item {index} in thread {threading.current_thread().name}")
 
@@ -110,7 +114,7 @@ def embedJson():
 
 def process_item_wo_thread(item, index):
     docs = Document(page_content=str(item))
-    db = Qdrant.from_documents([docs], ollama_emb, url="http://localhost:6333", collection_name="my_documents_google")
+    db = Qdrant.from_documents([docs], ollama_emb, url=os.getenv("QDRANT_CLIENT"), api_key=os.getenv("QDRANT_API_KEY"), collection_name="my_documents_google")
     # Corrected way to get the current thread's name
     print(f"Processed item {index}")
 
@@ -133,7 +137,7 @@ def embedJson_without_thread():
 
 
 def getContext(query):
-    client = QdrantClient("http://localhost:6333")
+    client = QdrantClient(url=os.getenv("QDRANT_CLIENT"), api_key=os.getenv("QDRANT_API_KEY"))
     db = Qdrant(client=client, collection_name="my_documents_google", embeddings=ollama_emb)
 
     # embedding_vector = ollama_emb.embed_query(query)
