@@ -1,7 +1,15 @@
 from langchain_community.llms import Ollama
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.schema import HumanMessage, SystemMessage
+# from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.messages import  (
+    AIMessage,
+    BaseMessage,
+    FunctionMessage,
+    HumanMessage,
+    SystemMessage,
+    ToolMessage,
+)
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_core.runnables import RunnablePassthrough
 from langchain.text_splitter import RecursiveJsonSplitter
@@ -27,7 +35,7 @@ if "GOOGLE_API_KEY" not in os.environ:
 
 # model = Ollama(model="dolphin-mixtral")
 # model= Ollama(model="tinydolphin")
-model = ChatGoogleGenerativeAI(model="gemini-1.0-pro-latest")
+model = ChatGoogleGenerativeAI(model="gemini-1.0-pro-latest", convert_system_message_to_human=True)
 # model=CustomLLM()
 # ollama_emb = OllamaEmbeddings(
 #     model="nomic-embed-text",
@@ -86,6 +94,46 @@ def generator(question):
     #throw error in this line
 
     return chunk
+
+def chat_generator(messages):
+    last_question=messages[-1]["content"]
+    context=getContext(str(messages))
+    template = f"""
+   <s>[INST]
+You are a customer support assistant for an agency named 'SmartGrad' specializing in assisting students pursuing academic programs abroad. You will be provided with a list of documents, each corresponding to a postgraduate program.
+[/INST]
+[INST]
+Answer the question based solely on the provided context. All necessary information is included in the documents.
+{context}
+[/INST]
+[INST]
+As a customer support assistant for an agency named 'SmartGrad' facilitating academic pursuits abroad, you'll be presented with a list of documents, each detailing a relevant postgraduate program retrieved from our database through similarity search.
+Your task is to respond to inquiries as a helpful assistant. Do not disclose the method of obtaining the context. Assume a human-like interaction and familiarity with the context provided.
+Remember, the system provides the context, not the customer or questionnaire. Also ask the customer what else they need after answering their question.
+DO NOT MENTION THE WORDS 'CONTEXT' OR 'DOCUMENTs' IN YOUR ANSWER.
+[/INST]
+[INST]
+Question: {last_question}
+[/INST]</s>
+Your Answer as a Human Customer Service:
+    """
+    messages_new = []
+
+    messages_new.append(SystemMessage(content="You are a customer support assistant for an agency specializing in assisting students pursuing academic programs abroad. You will be provided with a list of documents, each corresponding to a postgraduate program.Answer the question based solely on the provided context. "))
+    for message in messages:
+        if(message["role"]=="user"):
+            messages_new+=[HumanMessage(content=message["content"])]
+        else:
+
+            messages_new+=[AIMessage(content=message["content"])]
+    messages_new.pop(len(messages_new)-1)
+    messages_new+=[HumanMessage(content=template)]
+    #print messages_new line by line
+    # for message in messages_new:
+    #     print(message,"\n")
+    # return messages_new
+    print(messages_new)
+    return model.invoke(messages_new).content
 
 def process_item(item, index):
     docs = Document(page_content=str(item))
