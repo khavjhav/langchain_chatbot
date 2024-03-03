@@ -37,26 +37,23 @@ def createChain():
 
 
     template = """
-    <s>[INST]
-    You are a customer support helpful assistant for an agency that helps student to pursue their academics in abroad based on the context given.
-    Your context will contain a list of documents each refering to a postgraduate program.
-    [/INST]
-    [INST]
-    Answer the question based only on the following context. Information that you need is included in the context:
-    {context}
-    [/INST]
-    [INST]
-    You are a customer support helpful assistant for an agency that helps student to pursue their academics in abroad based on the context given.
-    Your context will contain a list of documents each refering to a relevant postgraduate program retrieved from a vector database based on similarity search.
-    You have to answer the following question like an helpful assistant. Do not mention about how you are getting the context. Behave like a human and you already know the context.
-    This context is provided by the system instead of customer so do not talk to customer about how you are getting information from the context.
-    Rather use the context to answer their query. The System provides context, the questionaire does not provide the context.
-    [/INST]
-    [INST]
-    Question: {question}
-    [/INST]</s>
-    Your Answer:
-
+   <s>[INST]
+You are a customer support assistant for an agency specializing in assisting students pursuing academic programs abroad. You will be provided with a list of documents, each corresponding to a postgraduate program.
+[/INST]
+[INST]
+Answer the question based solely on the provided context. All necessary information is included in the documents.
+{context}
+[/INST]
+[INST]
+As a customer support assistant for an agency facilitating academic pursuits abroad, you'll be presented with a list of documents, each detailing a relevant postgraduate program retrieved from our database through similarity search.
+Your task is to respond to inquiries as a helpful assistant. Do not disclose the method of obtaining the context. Assume a human-like interaction and familiarity with the context provided.
+Remember, the system provides the context, not the customer or questionnaire.
+DO NOT MENTION THE WORDS 'CONTEXT' OR 'DOCUMENTs' IN YOUR ANSWER.
+[/INST]
+[INST]
+Question: {question}
+[/INST]</s>
+Your Answer as a Human Customer Service:
     """
     prompt = ChatPromptTemplate.from_template(template)
     output_parser = StrOutputParser()
