@@ -27,10 +27,10 @@ if "GOOGLE_API_KEY" not in os.environ:
 # model= Ollama(model="tinydolphin")
 model = ChatGoogleGenerativeAI(model="gemini-1.0-pro-latest")
 # model=CustomLLM()
-ollama_emb = OllamaEmbeddings(
-    model="nomic-embed-text",
-)
-# ollama_emb = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+# ollama_emb = OllamaEmbeddings(
+#     model="nomic-embed-text",
+# )
+ollama_emb = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
 
 def createChain():
@@ -50,7 +50,7 @@ def createChain():
     Your context will contain a list of documents each refering to a relevant postgraduate program retrieved from a vector database based on similarity search.
     You have to answer the following question like an helpful assistant. Do not mention about how you are getting the context. Behave like a human and you already know the context.
     This context is provided by the system instead of customer so do not talk to customer about how you are getting information from the context.
-    Rather use the context to answer their query.
+    Rather use the context to answer their query. The System provides context, the questionaire does not provide the context.
     [/INST]
     [INST]
     Question: {question}
@@ -88,7 +88,7 @@ def generator(question):
 
 def process_item(item, index):
     docs = Document(page_content=str(item))
-    db = Qdrant.from_documents([docs], ollama_emb, url="http://localhost:6333", collection_name="my_documents_google")
+    db = Qdrant.from_documents([docs], ollama_emb, url="http://localhost:6333", collection_name="my_documents")
     # Corrected way to get the current thread's name
     print(f"Processed item {index} in thread {threading.current_thread().name}")
 
@@ -111,10 +111,33 @@ def embedJson():
     print("All items processed.")
     return {"message": "done"}
 
+def process_item_wo_thread(item, index):
+    docs = Document(page_content=str(item))
+    db = Qdrant.from_documents([docs], ollama_emb, url="http://localhost:6333", collection_name="my_documents_google")
+    # Corrected way to get the current thread's name
+    print(f"Processed item {index}")
+
+def embedJson_without_thread():
+    print("Processing items in parallel...")
+    # file_path = './oxford.json'
+    programmes=[]
+    for i in range(7):
+        file_path = f'./csvjson ({i+1}).json'
+        json_data = json.loads(Path(file_path).read_text())
+        for item in json_data["Programmes"]:
+            programmes.append(item)
+
+
+    for i, item in enumerate(programmes):
+        process_item_wo_thread(item, i)
+    print("All items processed.")
+    return {"message": "done"}
+
+
 
 def getContext(query):
     client = QdrantClient("http://localhost:6333")
-    db = Qdrant(client=client, collection_name="my_documents", embeddings=ollama_emb)
+    db = Qdrant(client=client, collection_name="my_documents_google", embeddings=ollama_emb)
 
     # embedding_vector = ollama_emb.embed_query(query)
     # print(embedding_vector)
